@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GK Hamster Game</title>
+    <style>
+        body {
+            font-family: 'Komika Axis', sans-serif;
+            color: yellow;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* For mobile compatibility */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #background-image {
+            width: 3in; /* Fixed width for the image */
+            height: auto;
+            opacity: 0.5; /* Slightly transparent background image */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+        #score {
+            font-size: 1.5em;
+            color: orange;
+            transition: color 0.5s;
+        }
+        #gk-button {
+            background-color: red;
+            color: yellow;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        #gk-display {
+            margin-top: 15px;
+            font-size: 1em;
+            color: black !important; /* Black text color */
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.7); /* Black transparent background */
+            border: 2px dashed yellow;
+            transition: background-color 0.5s;
+        }
+        #gk-button:active {
+            transform: scale(0.9);
+            background-color: darkred;
+        }
+        .starry-effect {
+            font-size: 1.5em;
+            color: yellow;
+            animation: sparkle 1s infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <img src="1.jpg" alt="Background" id="background-image">
+        <div id="score">Score: 0</div>
+        <button id="gk-button">Tap</button>
+        <div id="gk-display">Press the button to see a GK fact!</div>
+    </div>
+
+    <script>
+        const gkFacts = [
+            "বাংলাদেশের স্বাধীনতা যুদ্ধ শুরু হয় ২৬ মার্চ, ১৯৭১ সালে।",
+            "১৯৭১ সালের ২৫ মার্চ কালরাতের মাধ্যমে মুক্তিযুদ্ধ শুরু হয়।",
+            "বঙ্গবন্ধু শেখ মুজিবুর রহমান ছিলেন স্বাধীনতার অন্যতম নেতা।",
+            "মুক্তিযুদ্ধে বাংলাদেশি বীরাঙ্গনা নারীদের বীরত্ব ও ত্যাগ গুরুত্বপূর্ণ ভূমিকা পালন করেছে।",
+            "১৯৭১ সালে বাংলাদেশের মুক্তিযুদ্ধে প্রায় ৩০ লাখ মানুষ শহীদ হন।",
+            "মুক্তিযুদ্ধে বাংলাদেশে ১ কোটি মানুষ ভারতে আশ্রয় নেয়।",
+            "১৬ ডিসেম্বর ১৯৭১ সালে বাংলাদেশ বিজয় অর্জন করে।",
+            "মুক্তিযুদ্ধে বীরশ্রেষ্ঠ খেতাব পাওয়া সৈনিকের সংখ্যা ৭ জন।",
+            "১৯৭১ সালের ১০ এপ্রিল বাংলাদেশ সরকার গঠিত হয়।",
+            "বঙ্গবন্ধু ১৯৭১ সালের ৭ মার্চ ঐতিহাসিক ভাষণ দেন।",
+            "বাংলাদেশের মুক্তিযুদ্ধে ত্রিপুরা রাজ্য গুরুত্বপূর্ণ ভূমিকা পালন করে।",
+            "ইন্দিরা গান্ধী ভারতের প্রধানমন্ত্রীর ভূমিকা পালন করেন বাংলাদেশের মুক্তিযুদ্ধের সময়।",
+            "মুক্তিযুদ্ধকালে স্বাধীন বাংলা বেতার কেন্দ্রের প্রচারিত গানের বিশেষ ভূমিকা ছিল।",
+            "বাংলাদেশের স্বাধীনতা সংগ্রামের প্রথম শহীদ ক্যাপ্টেন নুর মোহাম্মদ।",
+            "বাংলাদেশের পতাকা প্রথম উত্তোলন করা হয় ২ মার্চ ১৯৭১ সালে।",
+            "মুক্তিযুদ্ধের সময় রণাঙ্গনে প্রায় ২ লক্ষ নারী নির্যাতনের শিকার হন।",
+            "মুক্তিযুদ্ধে পাকিস্তানি বাহিনীর আত্মসমর্পণ হয় ১৬ ডিসেম্বর ১৯৭১ সালে।",
+            "ভারতীয় সেনাবাহিনী ১৯৭১ সালের ডিসেম্বরে মুক্তিযুদ্ধে যোগ দেয়।",
+            "মুক্তিযুদ্ধের প্রথম কবি আব্দুল্লাহ আবু সায়ীদ রচিত মুক্তিযুদ্ধ ভিত্তিক কবিতা।",
+            "১৯৭১ সালের ডিসেম্বরে ঢাকা বিশ্ববিদ্যালয় ছাত্ররা মুক্তিযুদ্ধে অংশ নেন।"
+        ];
+
+        let score = 0;
+        let tapCount = 0;
+        const scoreDisplay = document.getElementById("score");
+        const gkDisplay = document.getElementById("gk-display");
+        const gkButton = document.getElementById("gk-button");
+
+        gkButton.addEventListener("click", () => {
+            const randomFact = gkFacts[Math.floor(Math.random() * gkFacts.length)];
+            const randomPoints = Math.floor(Math.random() * 5) + 1;
+            score += randomPoints;
+            tapCount++;
+
+            scoreDisplay.textContent = "Score: " + score;
+            gkDisplay.textContent = randomFact;
+
+            // Fun color-changing effect on score
+            scoreDisplay.style.color = score % 2 === 0 ? 'yellow' : 'orange';
+            gkDisplay.style.backgroundColor = score % 2 === 0 ? 'rgba(255, 255, 0, 0.2)' : 'rgba(255, 69, 0, 0.2)';
+
+            // Show starry effect every 7 taps
+            if (tapCount % 7 === 0) {
+                showStarryEffect();
+            }
+        });
+
+        function showStarryEffect() {
+            const effect = document.createElement("div");
+            effect.className = "starry-effect";
+            effect.textContent = "WOW, carry on learning!";
+            document.body.appendChild(effect);
+
+            setTimeout(() => {
+                effect.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
